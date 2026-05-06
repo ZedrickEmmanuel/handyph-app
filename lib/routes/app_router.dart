@@ -8,9 +8,12 @@ import 'package:handyph_app/features/home/screens/home_screen.dart';
 import 'package:handyph_app/features/discovery/screens/discovery_screen.dart';
 import 'package:handyph_app/features/discovery/screens/worker_profile_screen.dart';
 import 'package:handyph_app/features/booking/screens/booking_screen.dart';
+import 'package:handyph_app/features/booking/screens/booking_confirmation_screen.dart';
 import 'package:handyph_app/features/jobs/screens/my_jobs_screen.dart';
+import 'package:handyph_app/features/jobs/screens/job_details_screen.dart';
 import 'package:handyph_app/features/chat/screens/chat_screen.dart';
 import 'package:handyph_app/features/profile/screens/profile_screen.dart';
+import 'package:handyph_app/features/review/screens/review_service_screen.dart';
 
 /// HandyPH — Router Configuration
 ///
@@ -67,12 +70,22 @@ class AppRouter {
         name: 'booking',
         builder: (context, state) => const BookingScreen(),
       ),
+      GoRoute(
+        path: '/booking-confirmation',
+        name: 'booking-confirmation',
+        builder: (context, state) => const BookingConfirmationScreen(),
+      ),
 
       // ── My Jobs ───────────────────────────────────────
       GoRoute(
         path: '/my-jobs',
         name: 'my-jobs',
         builder: (context, state) => const MyJobsScreen(),
+      ),
+      GoRoute(
+        path: '/job-details',
+        name: 'job-details',
+        builder: (context, state) => const JobDetailsScreen(),
       ),
 
       // ── Chat ──────────────────────────────────────────
@@ -87,6 +100,11 @@ class AppRouter {
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/review-service',
+        name: 'review-service',
+        builder: (context, state) => const ReviewServiceScreen(),
       ),
     ],
   );

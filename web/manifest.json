@@ -1,6 +1,6 @@
 {
-    "name": "handyph_app",
-    "short_name": "handyph_app",
+    "name": "HandyPH",
+    "short_name": "HandyPH",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

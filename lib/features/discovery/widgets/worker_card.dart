@@ -153,55 +153,61 @@ class WorkerCard extends StatelessWidget {
             const SizedBox(height: 14),
 
             // ── Rating + Success Rate ───────────────────
-            Row(
-              children: [
-                // Star + Rating
-                Icon(
-                  Icons.star_rounded,
-                  color: const Color(0xFFFFC107),
-                  size: 18,
-                ),
-                const SizedBox(width: 3),
-                Text(
-                  '$rating',
-                  style: AppTypography.labelLarge.copyWith(
-                    fontWeight: FontWeight.w700,
+            Padding(
+              padding: const EdgeInsets.only(left: 78),
+              child: Row(
+                children: [
+                  // Star + Rating
+                  Icon(
+                    Icons.star_rounded,
+                    color: const Color(0xFFFFC107),
+                    size: 18,
                   ),
-                ),
-                const SizedBox(width: 2),
-                Text(
-                  '($reviews)',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textTertiary,
+                  const SizedBox(width: 3),
+                  Text(
+                    '$rating',
+                    style: AppTypography.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '•',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textTertiary,
+                  const SizedBox(width: 2),
+                  Text(
+                    '($reviews)',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
+                  Text(
+                    '•',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
 
-                // Success Rate
-                Text(
-                  'Success Rate:\n$successRate%',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.3,
+                  // Success Rate
+                  Text(
+                    'Success Rate:\n$successRate%',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                      height: 1.3,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 10),
 
             // ── Base Rate ───────────────────────────────
-            Text(
-              'Base Rate: ₱$baseRate',
-              style: AppTypography.labelLarge.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
+            Padding(
+              padding: const EdgeInsets.only(left: 78),
+              child: Text(
+                'Base Rate: ₱$baseRate',
+                style: AppTypography.labelLarge.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
