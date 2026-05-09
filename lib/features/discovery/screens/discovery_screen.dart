@@ -153,7 +153,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   successRate: worker['successRate'] as int,
                   baseRate: worker['baseRate'] as int,
                   isFavorite: worker['isFavorite'] as bool,
-                  onTap: () => context.push('/worker-profile'),
+                  onTap: () => context.push('/view-worker-profile'),
                   onFavoriteTap: () {
                     // Toggle favorite — Phase 3
                   },

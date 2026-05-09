@@ -14,6 +14,12 @@ import 'package:handyph_app/features/jobs/screens/job_details_screen.dart';
 import 'package:handyph_app/features/chat/screens/chat_screen.dart';
 import 'package:handyph_app/features/profile/screens/profile_screen.dart';
 import 'package:handyph_app/features/review/screens/review_service_screen.dart';
+import 'package:handyph_app/features/worker_registration/screens/worker_registration_screen.dart';
+import 'package:handyph_app/features/worker_registration/screens/worker_verification_screen.dart';
+import 'package:handyph_app/features/worker_dashboard/screens/worker_dashboard_screen.dart';
+import 'package:handyph_app/features/worker_dashboard/screens/worker_coming_soon_screen.dart';
+import 'package:handyph_app/features/worker_dashboard/screens/worker_job_details_screen.dart';
+import 'package:handyph_app/features/worker_dashboard/screens/worker_chat_screen.dart';
 
 /// HandyPH — Router Configuration
 ///
@@ -57,10 +63,10 @@ class AppRouter {
         builder: (context, state) => const DiscoveryScreen(),
       ),
 
-      // ── Worker Profile ────────────────────────────────
+      // ── Worker Profile (Homeowner view) ─────────────
       GoRoute(
-        path: '/worker-profile',
-        name: 'worker-profile',
+        path: '/view-worker-profile',
+        name: 'view-worker-profile',
         builder: (context, state) => const WorkerProfileScreen(),
       ),
 
@@ -105,6 +111,57 @@ class AppRouter {
         path: '/review-service',
         name: 'review-service',
         builder: (context, state) => const ReviewServiceScreen(),
+      ),
+
+      // ── Worker Registration ────────────────────────────
+      GoRoute(
+        path: '/register-worker',
+        name: 'register-worker',
+        builder: (context, state) => const WorkerRegistrationScreen(),
+      ),
+      GoRoute(
+        path: '/register-worker-verification',
+        name: 'register-worker-verification',
+        builder: (context, state) => const WorkerVerificationScreen(),
+      ),
+      GoRoute(
+        path: '/worker-dashboard',
+        name: 'worker-dashboard',
+        builder: (context, state) => const WorkerDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/worker-job-details',
+        name: 'worker-job-details',
+        builder: (context, state) => const WorkerJobDetailsScreen(),
+      ),
+      GoRoute(
+        path: '/worker-chat',
+        name: 'worker-chat',
+        builder: (context, state) => const WorkerChatScreen(),
+      ),
+      GoRoute(
+        path: '/worker-home',
+        name: 'worker-home',
+        builder: (context, state) => const WorkerComingSoonScreen(
+          tabName: 'Home',
+          navIndex: 0,
+        ),
+      ),
+      GoRoute(
+        path: '/worker-discovery',
+        name: 'worker-discovery',
+        builder: (context, state) => const WorkerComingSoonScreen(
+          tabName: 'Discovery',
+          navIndex: 2,
+        ),
+      ),
+      GoRoute(
+        path: '/worker-profile',
+        name: 'worker-profile',
+        builder: (context, state) => const WorkerComingSoonScreen(
+          tabName: 'Profile',
+          navIndex: 3,
+        ),
       ),
     ],
   );

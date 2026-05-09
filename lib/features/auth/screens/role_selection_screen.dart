@@ -160,7 +160,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                             if (_selectedRole == 'homeowner') {
                               context.go('/register-homeowner');
                             } else {
-                              context.go('/login');
+                              context.go('/register-worker');
                             }
                           }
                         : null,

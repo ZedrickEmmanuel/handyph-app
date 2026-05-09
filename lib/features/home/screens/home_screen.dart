@@ -232,7 +232,7 @@ class HomeScreen extends StatelessWidget {
                     reviews: pro['reviews'] as int,
                     isVerified: pro['isVerified'] as bool,
                     onBookNow: () => context.push('/booking'),
-                    onTap: () => context.push('/worker-profile'),
+                    onTap: () => context.push('/view-worker-profile'),
                   );
                 },
               ),
