@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 
 /// Shared floating bottom navigation bar with rounded corners.
@@ -41,16 +42,16 @@ class AppBottomNavBar extends StatelessWidget {
             if (index == currentIndex) return;
             switch (index) {
               case 0:
-                context.go('/home');
+                context.go(AppRoutes.home);
                 break;
               case 1:
-                context.go('/discovery');
+                context.go(AppRoutes.discovery);
                 break;
               case 2:
-                context.go('/my-jobs');
+                context.go(AppRoutes.myJobs);
                 break;
               case 3:
-                context.go('/profile');
+                context.go(AppRoutes.profile);
                 break;
             }
           },

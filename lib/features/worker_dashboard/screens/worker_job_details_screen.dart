@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/features/worker_dashboard/data/mock_worker_job_details_data.dart';
@@ -226,7 +227,7 @@ class WorkerJobDetailsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: IconButton(
-              onPressed: () => context.push('/worker-chat'),
+              onPressed: () => context.push(AppRoutes.workerChat),
               icon: const Icon(Icons.chat_bubble_rounded,
                   size: 18, color: Colors.white),
               padding: EdgeInsets.zero,

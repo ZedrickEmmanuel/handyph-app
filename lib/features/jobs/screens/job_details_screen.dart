@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/features/jobs/data/mock_job_details_data.dart';
@@ -44,7 +45,7 @@ class JobDetailsScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.search_rounded, color: AppColors.textPrimary),
-            onPressed: () => context.push('/discovery'),
+            onPressed: () => context.push(AppRoutes.discovery),
           ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -96,7 +97,7 @@ class JobDetailsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(26),
                   ),
                 ),
-                onPressed: () => context.push('/review-service'),
+                onPressed: () => context.push(AppRoutes.reviewService),
                 icon: const Icon(Icons.star_rounded, size: 20),
                 label: Text(
                   'Rate this Service',
@@ -225,7 +226,7 @@ class JobDetailsScreen extends StatelessWidget {
 
           // Chat button
           GestureDetector(
-            onTap: () => context.push('/chat'),
+            onTap: () => context.push(AppRoutes.chat),
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(

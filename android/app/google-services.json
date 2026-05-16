@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "149727127521",
+    "project_id": "handyph-app",
+    "storage_bucket": "handyph-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149727127521:android:1ceb0471a241068baed4a0",
+        "android_client_info": {
+          "package_name": "com.handyph.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5lw-rDD3Q-3u8EInjoU0cYmq_mljrM0w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

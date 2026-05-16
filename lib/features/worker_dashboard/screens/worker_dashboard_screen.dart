@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/shared/widgets/worker_bottom_nav_bar.dart';
 import 'package:handyph_app/features/worker_dashboard/data/mock_worker_dashboard_data.dart';
+import 'package:handyph_app/shared/widgets/skeletons/worker_dashboard_skeleton_screen.dart';
 
 /// Worker Dashboard — Job Dashboard Screen
 ///
@@ -11,8 +13,23 @@ import 'package:handyph_app/features/worker_dashboard/data/mock_worker_dashboard
 ///   - Incoming service requests (accept / decline / counter)
 ///   - Active jobs with progress timeline
 ///   - Upcoming jobs preview
-class WorkerDashboardScreen extends StatelessWidget {
+class WorkerDashboardScreen extends StatefulWidget {
   const WorkerDashboardScreen({super.key});
+
+  @override
+  State<WorkerDashboardScreen> createState() => _WorkerDashboardScreenState();
+}
+
+class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _isLoading = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,60 +74,66 @@ class WorkerDashboardScreen extends StatelessWidget {
       ),
 
       // ── Body ─────────────────────────────────────────────
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Header ──────────────────────────────────────
-            Text(
-              'Job Dashboard',
-              style: AppTypography.headlineSmall.copyWith(
-                fontWeight: FontWeight.w800,
-                fontSize: 26,
-                color: AppColors.primary,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        child: _isLoading
+            ? const WorkerDashboardSkeletonScreen(key: ValueKey('skeleton'))
+            : SingleChildScrollView(
+                key: const ValueKey('content'),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Header ──────────────────────────────────────
+                    Text(
+                      'Job Dashboard',
+                      style: AppTypography.headlineSmall.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 26,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Manage your incoming requests and active projects.',
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+
+                    // ── Incoming Requests Section ────────────────────
+                    _buildSectionHeader(
+                      icon: Icons.assignment_turned_in_outlined,
+                      title: 'Incoming Requests',
+                      badgeCount: requests.length,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Request Cards
+                    ...requests.map((req) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _buildRequestCard(context, req),
+                        )),
+                    const SizedBox(height: 12),
+
+                    // ── Active Jobs Section ─────────────────────────
+                    _buildSectionHeader(
+                      icon: Icons.construction_rounded,
+                      title: 'Active Jobs',
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Active Job Card
+                    _buildActiveJobCard(context, activeJob),
+                    const SizedBox(height: 14),
+
+                    // Upcoming Job Preview
+                    _buildUpcomingJobCard(context, upcoming),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Manage your incoming requests and active projects.',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 28),
-
-            // ── Incoming Requests Section ────────────────────
-            _buildSectionHeader(
-              icon: Icons.assignment_turned_in_outlined,
-              title: 'Incoming Requests',
-              badgeCount: requests.length,
-            ),
-            const SizedBox(height: 16),
-
-            // Request Cards
-            ...requests.map((req) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _buildRequestCard(context, req),
-                )),
-            const SizedBox(height: 12),
-
-            // ── Active Jobs Section ─────────────────────────
-            _buildSectionHeader(
-              icon: Icons.construction_rounded,
-              title: 'Active Jobs',
-            ),
-            const SizedBox(height: 16),
-
-            // Active Job Card
-            _buildActiveJobCard(context, activeJob),
-            const SizedBox(height: 14),
-
-            // Upcoming Job Preview
-            _buildUpcomingJobCard(context, upcoming),
-          ],
-        ),
       ),
 
       // ── Bottom Nav ────────────────────────────────────────
@@ -403,7 +426,7 @@ class WorkerDashboardScreen extends StatelessWidget {
     final steps = job['steps'] as List<Map<String, dynamic>>;
 
     return GestureDetector(
-      onTap: () => context.push('/worker-job-details'),
+      onTap: () => context.push(AppRoutes.workerJobDetails),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -512,7 +535,7 @@ class WorkerDashboardScreen extends StatelessWidget {
                     padding: EdgeInsets.zero,
                   ),
                   IconButton(
-                    onPressed: () => context.push('/worker-chat'),
+                    onPressed: () => context.push(AppRoutes.workerChat),
                     icon: Icon(Icons.chat_bubble_rounded,
                         size: 20, color: AppColors.primary),
                     constraints:
@@ -684,7 +707,7 @@ class WorkerDashboardScreen extends StatelessWidget {
   // ════════════════════════════════════════════════════════════
   Widget _buildUpcomingJobCard(BuildContext context, Map<String, dynamic> job) {
     return GestureDetector(
-      onTap: () => context.push('/worker-job-details'),
+      onTap: () => context.push(AppRoutes.workerJobDetails),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(

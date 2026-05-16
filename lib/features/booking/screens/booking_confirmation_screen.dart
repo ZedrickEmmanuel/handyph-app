@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/features/booking/data/mock_booking_confirmation_data.dart';
@@ -46,7 +47,7 @@ class BookingConfirmationScreen extends StatelessWidget {
               Icons.search_rounded,
               color: AppColors.textPrimary,
             ),
-            onPressed: () => context.push('/discovery'),
+            onPressed: () => context.push(AppRoutes.discovery),
           ),
           const SizedBox(width: 4),
         ],
@@ -123,7 +124,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(28),
                   ),
                 ),
-                onPressed: () => context.go('/my-jobs'),
+                onPressed: () => context.go(AppRoutes.myJobs),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -145,7 +146,7 @@ class BookingConfirmationScreen extends StatelessWidget {
 
             // ── Back to Discovery Link ──────────────────────
             GestureDetector(
-              onTap: () => context.go('/discovery'),
+              onTap: () => context.go(AppRoutes.discovery),
               child: Text(
                 'Back to Discovery',
                 style: AppTypography.titleSmall.copyWith(

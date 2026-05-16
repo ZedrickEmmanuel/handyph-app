@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/features/discovery/data/mock_worker_profile_data.dart';
@@ -604,7 +605,7 @@ class WorkerProfileScreen extends StatelessWidget {
           children: [
             // Chat button
             GestureDetector(
-              onTap: () => context.push('/chat'),
+              onTap: () => context.push(AppRoutes.chat),
               child: Container(
                 height: 52,
                 width: 52,
@@ -637,7 +638,7 @@ class WorkerProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  onPressed: () => context.push('/booking'),
+                  onPressed: () => context.push(AppRoutes.booking),
                   child: Text(
                     'Book Now',
                     style: AppTypography.titleSmall.copyWith(

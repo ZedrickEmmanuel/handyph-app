@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/features/booking/data/mock_booking_data.dart';
@@ -472,7 +473,7 @@ class _BookingScreenState extends State<BookingScreen> {
             borderRadius: BorderRadius.circular(28),
           ),
         ),
-        onPressed: () => context.push('/booking-confirmation'),
+        onPressed: () => context.push(AppRoutes.bookingConfirmation),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

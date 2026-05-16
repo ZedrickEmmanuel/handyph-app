@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/features/jobs/data/mock_jobs_data.dart';
 import 'package:handyph_app/shared/widgets/app_bottom_nav_bar.dart';
+import 'package:handyph_app/shared/widgets/empty_state_widget.dart';
 
 /// Jobs — My Jobs Screen
 ///
@@ -159,21 +161,10 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
           // ── Job Cards List ───────────────────────────────
           Expanded(
             child: _currentJobs.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.work_off_outlined,
-                            size: 56, color: AppColors.textTertiary),
-                        const SizedBox(height: 12),
-                        Text(
-                          'No ${_tabs[_selectedTab].toLowerCase()} jobs',
-                          style: AppTypography.titleMedium.copyWith(
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                      ],
-                    ),
+                ? EmptyStateWidget(
+                    icon: Icons.work_off_outlined,
+                    title: 'No ${_tabs[_selectedTab].toLowerCase()} jobs',
+                    subtitle: 'Your ${_tabs[_selectedTab].toLowerCase()} jobs will appear here once you book a service.',
                   )
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(20, 4, 20, 120),
@@ -381,7 +372,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
           Align(
             alignment: Alignment.centerRight,
             child: GestureDetector(
-              onTap: () => context.push('/job-details'),
+              onTap: () => context.push(AppRoutes.jobDetails),
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 18, vertical: 10),

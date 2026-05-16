@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/features/review/data/mock_review_data.dart';
@@ -329,7 +330,7 @@ class _ReviewServiceScreenState extends State<ReviewServiceScreen> {
         ),
         onPressed: () {
           // Phase 3 — submit review to Firestore
-          context.go('/my-jobs');
+          context.go(AppRoutes.myJobs);
         },
         child: Text(
           'Submit Review',

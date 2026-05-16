@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 
 /// Worker-specific floating bottom navigation bar.
@@ -42,16 +43,16 @@ class WorkerBottomNavBar extends StatelessWidget {
             if (index == currentIndex) return;
             switch (index) {
               case 0:
-                context.go('/worker-home');
+                context.go(AppRoutes.workerHome);
                 break;
               case 1:
-                context.go('/worker-dashboard');
+                context.go(AppRoutes.workerDashboard);
                 break;
               case 2:
-                context.go('/worker-discovery');
+                context.go(AppRoutes.workerDiscovery);
                 break;
               case 3:
-                context.go('/worker-profile');
+                context.go(AppRoutes.workerProfile);
                 break;
             }
           },

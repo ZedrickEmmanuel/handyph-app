@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/core/theme/app_button_styles.dart';
@@ -158,9 +159,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                         ? () {
                             // Navigate to registration or login with selected role
                             if (_selectedRole == 'homeowner') {
-                              context.go('/register-homeowner');
+                              context.go(AppRoutes.registerHomeowner);
                             } else {
-                              context.go('/register-worker');
+                              context.go(AppRoutes.registerWorker);
                             }
                           }
                         : null,
@@ -186,7 +187,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => context.go('/login'),
+                      onTap: () => context.go(AppRoutes.login),
                       child: Text(
                         'Log in',
                         style: AppTypography.bodyMedium.copyWith(

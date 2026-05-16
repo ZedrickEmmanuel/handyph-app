@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 
@@ -121,7 +122,7 @@ class _WorkerVerificationScreenState extends State<WorkerVerificationScreen> {
                   ),
                   onPressed: () {
                     // Navigate to worker dashboard after registration
-                    context.go('/worker-dashboard');
+                    context.go(AppRoutes.workerDashboard);
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

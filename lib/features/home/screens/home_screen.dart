@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/features/home/data/mock_home_data.dart';
@@ -7,6 +8,7 @@ import 'package:handyph_app/features/home/widgets/upcoming_job_card.dart';
 import 'package:handyph_app/features/home/widgets/category_item.dart';
 import 'package:handyph_app/features/home/widgets/top_rated_pro_card.dart';
 import 'package:handyph_app/shared/widgets/app_bottom_nav_bar.dart';
+import 'package:handyph_app/shared/widgets/skeletons/home_skeleton_screen.dart';
 
 /// Homeowner — Home Dashboard Screen
 ///
@@ -16,8 +18,26 @@ import 'package:handyph_app/shared/widgets/app_bottom_nav_bar.dart';
 ///   - Service categories
 ///   - Top rated pros (horizontal scroll)
 ///   - Bottom navigation bar
-class HomeScreen extends StatelessWidget {
+///
+/// Demonstrates loading → content transition with skeleton screens.
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Simulate initial data fetch
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _isLoading = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +92,7 @@ class HomeScreen extends StatelessWidget {
                 Icons.search_rounded,
                 color: AppColors.textPrimary,
               ),
-              onPressed: () => context.push('/discovery'),
+              onPressed: () => context.push(AppRoutes.discovery),
             ),
           ),
           const SizedBox(width: 4),
@@ -80,7 +100,18 @@ class HomeScreen extends StatelessWidget {
       ),
 
       // ── Body ─────────────────────────────────────────────
-      body: SingleChildScrollView(
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        child: _isLoading
+            ? Padding(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 90,
+                ),
+                key: const ValueKey('skeleton'),
+                child: const HomeSkeletonScreen(),
+              )
+            : SingleChildScrollView(
+        key: const ValueKey('content'),
         padding: EdgeInsets.only(
           top: MediaQuery.of(context).padding.top + 90,
           bottom: 100, // Extra padding for the floating nav bar
@@ -112,7 +143,7 @@ class HomeScreen extends StatelessWidget {
 
                   // ── Search Bar ────────────────────────────
                   GestureDetector(
-                    onTap: () => context.push('/discovery'),
+                    onTap: () => context.push(AppRoutes.discovery),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -181,7 +212,7 @@ class HomeScreen extends StatelessWidget {
                       return CategoryItem(
                         name: cat['name'] as String,
                         iconType: cat['icon'] as String,
-                        onTap: () => context.push('/discovery'),
+                        onTap: () => context.push(AppRoutes.discovery),
                       );
                     }).toList(),
                   ),
@@ -199,7 +230,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => context.push('/discovery'),
+                        onTap: () => context.push(AppRoutes.discovery),
                         child: Text(
                           'See All',
                           style: AppTypography.labelLarge.copyWith(
@@ -231,8 +262,8 @@ class HomeScreen extends StatelessWidget {
                     rating: pro['rating'] as double,
                     reviews: pro['reviews'] as int,
                     isVerified: pro['isVerified'] as bool,
-                    onBookNow: () => context.push('/booking'),
-                    onTap: () => context.push('/view-worker-profile'),
+                    onBookNow: () => context.push(AppRoutes.booking),
+                    onTap: () => context.push(AppRoutes.viewWorkerProfile),
                   );
                 },
               ),
@@ -240,6 +271,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 24),
           ],
         ),
+      ),
       ),
 
       // ── Bottom Navigation ────────────────────────────────

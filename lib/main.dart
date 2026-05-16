@@ -1,34 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'firebase_options.dart';
 
 import 'core/theme/app_theme.dart';
 import 'routes/app_router.dart';
+import 'providers/auth_provider.dart';
 
-void main() {
-  runApp(const HandyPhApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Initialize auth provider before app starts
+  final authProvider = AuthProvider();
+  await authProvider.initialize();
+
+  runApp(HandyPhApp(authProvider: authProvider));
 }
 
 class HandyPhApp extends StatelessWidget {
-  const HandyPhApp({super.key});
+  final AuthProvider authProvider;
+
+  const HandyPhApp({super.key, required this.authProvider});
 
   @override
   Widget build(BuildContext context) {
-    // Phase 3 — MultiProvider will wrap this when providers are created:
-    // return MultiProvider(
-    //   providers: [
-    //     ChangeNotifierProvider(create: (_) => AuthProvider()),
-    //     ChangeNotifierProvider(create: (_) => UserProvider()),
-    //     ChangeNotifierProvider(create: (_) => BookingProvider()),
-    //     ChangeNotifierProvider(create: (_) => ChatProvider()),
-    //     ChangeNotifierProvider(create: (_) => JobProvider()),
-    //   ],
-    //   child: materialApp,
-    // );
-
-    return MaterialApp.router(
-      title: 'HandyPH',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      routerConfig: AppRouter.router,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: authProvider),
+      ],
+      child: Builder(
+        builder: (context) {
+          return MaterialApp.router(
+            title: 'HandyPH',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            routerConfig: AppRouter.router(context.read<AuthProvider>()),
+          );
+        },
+      ),
     );
   }
 }

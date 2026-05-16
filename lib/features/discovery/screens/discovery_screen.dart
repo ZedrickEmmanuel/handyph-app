@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
 import 'package:handyph_app/features/discovery/data/mock_discovery_data.dart';
 import 'package:handyph_app/features/discovery/widgets/worker_card.dart';
 import 'package:handyph_app/shared/widgets/app_bottom_nav_bar.dart';
+import 'package:handyph_app/shared/widgets/skeletons/discovery_skeleton_screen.dart';
+import 'package:handyph_app/shared/widgets/empty_state_widget.dart';
 
 /// Discovery — Find Professionals Screen
 ///
@@ -22,6 +25,15 @@ class DiscoveryScreen extends StatefulWidget {
 
 class _DiscoveryScreenState extends State<DiscoveryScreen> {
   final Set<String> _activeFilters = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _isLoading = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +50,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () => context.go('/home'),
+          onPressed: () => context.go(AppRoutes.home),
         ),
         title: Text(
           'Find Professionals',
@@ -138,27 +150,40 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
 
           // ── Worker List ──────────────────────────────────
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
-              itemCount: workers.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 14),
-              itemBuilder: (context, index) {
-                final worker = workers[index];
-                return WorkerCard(
-                  name: worker['name'] as String,
-                  specialty: worker['specialty'] as String,
-                  isVerified: worker['isVerified'] as bool,
-                  rating: worker['rating'] as double,
-                  reviews: worker['reviews'] as int,
-                  successRate: worker['successRate'] as int,
-                  baseRate: worker['baseRate'] as int,
-                  isFavorite: worker['isFavorite'] as bool,
-                  onTap: () => context.push('/view-worker-profile'),
-                  onFavoriteTap: () {
-                    // Toggle favorite — Phase 3
-                  },
-                );
-              },
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              child: _isLoading
+                  ? const DiscoverySkeletonScreen(key: ValueKey('skeleton'))
+                  : workers.isEmpty
+                      ? const EmptyStateWidget(
+                          key: ValueKey('empty'),
+                          icon: Icons.search_off_rounded,
+                          title: 'No workers found',
+                          subtitle: 'Try adjusting your filters or search for a different service.',
+                        )
+                      : ListView.separated(
+                          key: const ValueKey('content'),
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
+                          itemCount: workers.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 14),
+                          itemBuilder: (context, index) {
+                            final worker = workers[index];
+                            return WorkerCard(
+                              name: worker['name'] as String,
+                              specialty: worker['specialty'] as String,
+                              isVerified: worker['isVerified'] as bool,
+                              rating: worker['rating'] as double,
+                              reviews: worker['reviews'] as int,
+                              successRate: worker['successRate'] as int,
+                              baseRate: worker['baseRate'] as int,
+                              isFavorite: worker['isFavorite'] as bool,
+                              onTap: () => context.push(AppRoutes.viewWorkerProfile),
+                              onFavoriteTap: () {
+                                // Toggle favorite — Phase 3
+                              },
+                            );
+                          },
+                        ),
             ),
           ),
         ],
