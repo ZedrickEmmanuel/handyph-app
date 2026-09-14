@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:handyph_app/routes/app_routes.dart';
 import 'package:handyph_app/core/theme/app_colors.dart';
 import 'package:handyph_app/core/theme/app_typography.dart';
-import 'package:handyph_app/features/booking/data/mock_booking_data.dart';
+import 'package:handyph_app/models/user_model.dart';
+import 'package:handyph_app/providers/auth_provider.dart';
+import 'package:handyph_app/providers/booking_provider.dart';
 
 /// Booking — Book Service Form Screen
 ///
-/// Allows homeowners to submit a booking request with:
-///   - Worker summary card
-///   - Problem description text area
-///   - Date & time pickers
-///   - Photo upload area (optional)
-///   - Service address card
-///   - Submit button
+/// Accepts a [UserModel] worker via GoRouter extra.
+/// Auto-fills:
+///   - Worker summary from real Firestore data
+///   - Budget from worker's baseRate
+///   - Address from homeowner's location
+///
+/// Submits a real booking to Firestore on submit.
 class BookingScreen extends StatefulWidget {
-  const BookingScreen({super.key});
+  final UserModel? worker;
+
+  const BookingScreen({super.key, this.worker});
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -24,11 +29,35 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+  final _descriptionController = TextEditingController();
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final worker = MockBookingData.selectedWorker;
-    final address = MockBookingData.userAddress;
+    final worker = widget.worker;
+    final homeowner = context.read<AuthProvider>().userModel;
+
+    // Fallback if no worker data was passed
+    if (worker == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: const Center(child: Text('No worker selected.')),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -80,18 +109,18 @@ class _BookingScreenState extends State<BookingScreen> {
             _buildTimePicker(context),
             const SizedBox(height: 24),
 
-            // ── Photo Upload ────────────────────────────────
-            _sectionLabel('Add a photo of the issue (Optional)'),
+            // ── Estimated Cost (auto-filled) ────────────────
+            _sectionLabel('Estimated Service Fee'),
             const SizedBox(height: 10),
-            _buildPhotoUpload(),
+            _buildCostDisplay(worker.baseRate ?? 0),
             const SizedBox(height: 24),
 
             // ── Service Address ─────────────────────────────
-            _buildAddressCard(address),
+            _buildAddressCard(homeowner?.location ?? 'No address set'),
             const SizedBox(height: 32),
 
             // ── Submit Button ───────────────────────────────
-            _buildSubmitButton(context),
+            _buildSubmitButton(context, worker, homeowner),
             const SizedBox(height: 16),
           ],
         ),
@@ -113,9 +142,9 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
-  // WORKER SUMMARY CARD
+  // WORKER SUMMARY CARD (real data)
   // ════════════════════════════════════════════════════════════
-  Widget _buildWorkerCard(Map<String, dynamic> worker) {
+  Widget _buildWorkerCard(UserModel worker) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -125,7 +154,6 @@ class _BookingScreenState extends State<BookingScreen> {
       ),
       child: Row(
         children: [
-          // Avatar
           CircleAvatar(
             radius: 28,
             backgroundColor: AppColors.primarySurface,
@@ -136,23 +164,23 @@ class _BookingScreenState extends State<BookingScreen> {
             ),
           ),
           const SizedBox(width: 14),
-
-          // Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Name + Verified
                 Row(
                   children: [
-                    Text(
-                      worker['name'] as String,
-                      style: AppTypography.titleSmall.copyWith(
-                        fontWeight: FontWeight.w700,
+                    Flexible(
+                      child: Text(
+                        worker.name,
+                        style: AppTypography.titleSmall.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    if (worker['isVerified'] as bool)
+                    if (worker.isVerified)
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
@@ -183,36 +211,18 @@ class _BookingScreenState extends State<BookingScreen> {
                   ],
                 ),
                 const SizedBox(height: 2),
-
-                // Specialty
                 Text(
-                  worker['specialty'] as String,
+                  worker.primarySkill ?? 'General',
                   style: AppTypography.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 4),
-
-                // Rating
-                Row(
-                  children: [
-                    const Icon(Icons.star_outline_rounded,
-                        color: Color(0xFFFFC107), size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${worker['rating']}',
-                      style: AppTypography.labelLarge.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${worker['reviews']} reviews)',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                  ],
+                Text(
+                  '${worker.yearsExperience ?? 0} years experience • Base Rate: ₱${worker.baseRate ?? 0}',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                 ),
               ],
             ),
@@ -233,6 +243,7 @@ class _BookingScreenState extends State<BookingScreen> {
         border: Border.all(color: AppColors.divider, width: 1),
       ),
       child: TextField(
+        controller: _descriptionController,
         maxLines: 5,
         decoration: InputDecoration(
           hintText: 'e.g., Leaking pipe under the kitchen sink...',
@@ -344,62 +355,47 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
-  // PHOTO UPLOAD AREA
+  // ESTIMATED COST DISPLAY (auto-filled from baseRate)
   // ════════════════════════════════════════════════════════════
-  Widget _buildPhotoUpload() {
-    return GestureDetector(
-      onTap: () {
-        // Phase 4 — Firebase Storage upload
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 32),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: AppColors.divider,
-            width: 1.5,
-            // Dashed border visual approximated with a solid border
+  Widget _buildCostDisplay(int baseRate) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primarySurface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.payments_outlined, size: 22, color: AppColors.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Based on worker\'s base rate',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '₱$baseRate',
+                  style: AppTypography.headlineSmall.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 24,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Camera icon in a circle
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.primarySurface,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.camera_alt_outlined,
-                color: AppColors.primary,
-                size: 28,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Tap to upload
-            Text(
-              'Tap to upload',
-              style: AppTypography.labelLarge.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 4),
-
-            // File info
-            Text(
-              'PNG, JPG up to 10MB',
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textTertiary,
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -407,7 +403,7 @@ class _BookingScreenState extends State<BookingScreen> {
   // ════════════════════════════════════════════════════════════
   // SERVICE ADDRESS CARD
   // ════════════════════════════════════════════════════════════
-  Widget _buildAddressCard(Map<String, dynamic> address) {
+  Widget _buildAddressCard(String address) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -420,11 +416,11 @@ class _BookingScreenState extends State<BookingScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.primarySurface,
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.location_on_outlined,
               color: AppColors.primary,
               size: 20,
@@ -443,7 +439,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  address['full'] as String,
+                  address,
                   style: AppTypography.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
                     height: 1.4,
@@ -458,9 +454,13 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
-  // SUBMIT BUTTON
+  // SUBMIT BUTTON — creates real Firestore booking
   // ════════════════════════════════════════════════════════════
-  Widget _buildSubmitButton(BuildContext context) {
+  Widget _buildSubmitButton(
+    BuildContext context,
+    UserModel worker,
+    UserModel? homeowner,
+  ) {
     return SizedBox(
       width: double.infinity,
       height: 54,
@@ -473,22 +473,107 @@ class _BookingScreenState extends State<BookingScreen> {
             borderRadius: BorderRadius.circular(28),
           ),
         ),
-        onPressed: () => context.push(AppRoutes.bookingConfirmation),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Submit Booking Request',
-              style: AppTypography.titleSmall.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
+        onPressed: _isSubmitting
+            ? null
+            : () => _submitBooking(context, worker, homeowner),
+        child: _isSubmitting
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Submit Booking Request',
+                    style: AppTypography.titleSmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward_rounded, size: 20),
+                ],
               ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward_rounded, size: 20),
-          ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // SUBMIT LOGIC
+  // ════════════════════════════════════════════════════════════
+  Future<void> _submitBooking(
+    BuildContext context,
+    UserModel worker,
+    UserModel? homeowner,
+  ) async {
+    // Validation
+    if (_descriptionController.text.trim().isEmpty) {
+      _showError(context, 'Please describe the problem.');
+      return;
+    }
+    if (_selectedDate == null) {
+      _showError(context, 'Please select a date.');
+      return;
+    }
+    if (_selectedTime == null) {
+      _showError(context, 'Please select a time.');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    final bookingProvider = context.read<BookingProvider>();
+    final router = GoRouter.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    final dateStr =
+        '${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.year}';
+    final timeStr = _selectedTime!.format(context);
+
+    final success = await bookingProvider.createBooking(
+      homeownerId: homeowner?.uid ?? '',
+      homeownerName: homeowner?.name ?? 'Homeowner',
+      workerId: worker.uid,
+      workerName: worker.name,
+      workerSkill: worker.primarySkill ?? 'General',
+      serviceCategory: worker.primarySkill ?? 'General',
+      jobDescription: _descriptionController.text.trim(),
+      scheduledDate: dateStr,
+      scheduledTime: timeStr,
+      budget: worker.baseRate ?? 0,
+      address: homeowner?.location ?? '',
+    );
+
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+
+    if (success) {
+      router.push(AppRoutes.bookingConfirmation);
+    } else {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(bookingProvider.error ?? 'Failed to submit booking.'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
+      );
+    }
+  }
+
+  void _showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
